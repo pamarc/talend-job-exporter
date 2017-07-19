@@ -280,6 +280,7 @@
                             </Require-Bundle>
                         </manifestEntries>
                     </archive>
+                    <outputDirectory>C:\Program Files\TOS_ESB-20170623_1246-V6.4.1\Studio\plugins</outputDirectory>
                 </configuration>
             </plugin>
 			 <plugin>

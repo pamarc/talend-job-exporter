@@ -28,10 +28,13 @@ public class JobExportApplication implements IApplication {
 		String contextName = getParameterValue(iApplicationContext, "context");
 		if(contextName == null) contextName = "Default";
 		String jobType = getParameterValue(iApplicationContext, "jobType");
+		// Default export type is ZIP
 		JobExportType jobTypeEnum = JobExportType.POJO;
+		String extension = ".zip";
 		if(jobType!=null && jobType.equals("OSGI")){ 
 			System.out.println("Type OSGI (ESB)");
 			jobTypeEnum = JobExportType.OSGI;
+			extension = ".jar";
 		}
 		
 		
@@ -48,7 +51,7 @@ public class JobExportApplication implements IApplication {
 					RepositoryNode repositoryNode = (RepositoryNode) iterator.next();
 					String jobFullPath = ProjectNodeUtils.getNodePath(repositoryNode)+repositoryNode.getLabel();
 					System.out.println("Compilation du job "+jobFullPath);
-					JobExporterConfigBuilder pb = toArchiveFile(getMandatoryParameterValue(iApplicationContext, "targetDir")+"/"+repositoryNode.getLabel());
+					JobExporterConfigBuilder pb = toArchiveFile(getMandatoryParameterValue(iApplicationContext, "targetDir")+"/"+repositoryNode.getLabel()+extension);
 		            pb =        pb.jobsWithLabelMatching(jobFullPath)
 		                    .needSystemRoutine()
 		                    .needUserRoutine()
