@@ -7,7 +7,12 @@ package com.bsb.tools.talend.export;
  */
 public class ProjectImportException extends Exception {
 
-    public ProjectImportException(String message) {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	public ProjectImportException(String message) {
         super(message);
     }
 

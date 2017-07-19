@@ -15,7 +15,6 @@ import org.talend.core.CorePlugin;
 import org.talend.core.context.Context;
 import org.talend.core.context.RepositoryContext;
 import org.talend.core.model.general.Project;
-import org.talend.core.model.properties.PropertiesFactory;
 import org.talend.core.model.properties.User;
 import org.talend.core.repository.model.IRepositoryFactory;
 import org.talend.core.repository.model.ProxyRepositoryFactory;
@@ -45,6 +44,7 @@ public final class Workspace {
      * @throws WorkspaceInitializationException if the workspace failed to be initialized
      */
     public static Workspace initializeWorkspace() throws WorkspaceInitializationException {
+    	System.out.println("initialisation du workspace");
         CommonsPlugin.setHeadless(true);
 
         final RepositoryContext repositoryContext = new RepositoryContext();

@@ -13,14 +13,13 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.talend.commons.exception.SystemException;
 import org.talend.core.CorePlugin;
-import org.talend.core.GlobalServiceRegister;
 import org.talend.core.model.properties.Item;
 import org.talend.designer.codegen.ITalendSynchronizer;
-import org.talend.designer.core.ICamelDesignerCoreService;
 import org.talend.repository.model.RepositoryNode;
 import org.talend.repository.ui.wizards.exportjob.action.JobExportAction;
-import org.talend.repository.ui.wizards.exportjob.scriptsmanager.JobJavaScriptsManager;
 import org.talend.repository.ui.wizards.exportjob.scriptsmanager.JobScriptsManager;
+import org.talend.repository.ui.wizards.exportjob.scriptsmanager.JobScriptsManagerFactory;
+import org.talend.repository.utils.JobVersionUtils;
 
 /**
  * Service responsible of exporting jobs into an archive file.
@@ -30,7 +29,7 @@ import org.talend.repository.ui.wizards.exportjob.scriptsmanager.JobScriptsManag
 public class JobExporter {
 
     private final JobExporterConfig jobExporterConfig;
-    private final JobJavaScriptsManager manager;
+    private final JobScriptsManager manager;
 
     /**
      * Initializes a new service instance exporting to the specified archive file based
@@ -38,8 +37,7 @@ public class JobExporter {
      */
     JobExporter(JobExporterConfig jobExporterConfig) {
         this.jobExporterConfig = jobExporterConfig;	
-		 //return new JobJavaScriptsManager(exportChoiceMap, contextName, launcher, statisticPort, tracePort);
-        this.manager = new JobJavaScriptsManager(jobExporterConfig.getChoices(), jobExporterConfig.getContextName(), JobScriptsManager.ALL_ENVIRONMENTS, -1, -1);
+        this.manager = JobScriptsManagerFactory.createManagerInstance(jobExporterConfig.getChoices(), jobExporterConfig.getContextName(), JobScriptsManager.ALL_ENVIRONMENTS, -1, -1, jobExporterConfig.getJobTypeEnum()); 
         this.manager.setDestinationPath(jobExporterConfig.getDestinationFile());
         this.manager.setTopFolderName(new File(this.manager.getDestinationPath()).getName());
     }
@@ -50,20 +48,38 @@ public class JobExporter {
      *
      * @throws JobExportException if some jobs failed to be exported
      */
-    public BuildResult export() throws JobExportException {
-        final List<RepositoryNode> nodes = ProjectNodeUtils.findJobsByPath(jobExporterConfig.getJobsToExport());
+    public BuildResult export(RepositoryNode node) throws JobExportException {
+        String searchPattern = jobExporterConfig.getJobsToExport();
 
-        try {
-            final Job job = CorePlugin.getDefault().getCodeGeneratorService().initializeTemplates();
-            job.join();
+        System.out.println("Searching for nodes to export matching pattern : " + searchPattern);
 
-            final JobExportAction jobExportAction = new JobExportAction(nodes, this.jobExporterConfig.getVersion(), this.manager, null, "Job"); // TODO support versioning
-
-            jobExportAction.run(new NullProgressMonitor());
-
-            return new BuildResult(jobExportAction.isBuildSuccessful(), getIssues(nodes));
-        } catch (InterruptedException | InvocationTargetException | CoreException | SystemException e) {
-            throw new JobExportException("Error while exporting jobs.", e);
+        List<RepositoryNode> nodes = new ArrayList<RepositoryNode>();
+        nodes.add(node);
+        		//ProjectNodeUtils.findJobsByPath( searchPattern );
+        if(nodes.size()>1){
+    		System.out.println("Attention plusieurs jobs identifiés, veuillez restreindre votre choix ");
+    		return new BuildResult(false, null);  
+        }
+        else{
+        	if(nodes.size()==1){
+	        	 try {
+	 	            final Job job = CorePlugin.getDefault().getCodeGeneratorService().initializeTemplates();
+	 	            job.join();
+	 	
+	 	            //final JobExportAction jobExportAction = new JobExportAction(nodes, this.jobExporterConfig.getVersion(), this.manager, null, "Job"); // TODO support versioning
+	 	            final JobExportAction jobExportAction = new JobExportAction(nodes, JobVersionUtils.getCurrentVersion(nodes.get(0)), this.manager, null, "Job"); // TODO support versioning
+	
+	 	            jobExportAction.run(new NullProgressMonitor());
+	 	
+	 	            return new BuildResult(jobExportAction.isBuildSuccessful(), getIssues(nodes));
+	 	        } catch (InterruptedException | InvocationTargetException | CoreException | SystemException e) {
+	 	            throw new JobExportException("Error while exporting jobs.", e);
+	 	        }
+        	}
+        	else{
+        		System.out.println("Attention aucun job trouvé, il faut avoir en tête que le pattern de recherche doit correspondre au chemin absolu du job, ex : fin/fin_sag/fin_sag_ecr_output");
+        		return new BuildResult(false, null);  
+        	}
         }
     }
 
@@ -88,14 +104,6 @@ public class JobExporter {
      */
     private ITalendSynchronizer getSynchronizer(Item item) {
         ITalendSynchronizer synchronizer = CorePlugin.getDefault().getCodeGeneratorService().createRoutineSynchronizer();
-
-        /*if (GlobalServiceRegister.getDefault().isServiceRegistered(ICamelDesignerCoreService.class)) {
-            ICamelDesignerCoreService service = (ICamelDesignerCoreService) GlobalServiceRegister.getDefault()
-                  .getService(ICamelDesignerCoreService.class);
-            if (service.isInstanceofCamel(item)) {
-                synchronizer = CorePlugin.getDefault().getCodeGeneratorService().createCamelBeanSynchronizer();
-            }
-        }*/
 
         return synchronizer;
     }

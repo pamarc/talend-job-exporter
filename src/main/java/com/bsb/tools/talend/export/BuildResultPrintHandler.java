@@ -26,11 +26,13 @@ public class BuildResultPrintHandler implements BuildResultHandler<BuildResult> 
 
     @Override
     public BuildResult handle(BuildResult buildResult) {
-        for (BuildIssue buildIssue : buildResult.getIssues()) {
-            if (buildIssue.getSeverity().isSeverThan(severity)) {
-                printStream.println(buildIssue);
-            }
-        }
+    	if(buildResult.getIssues() != null){
+	        for (BuildIssue buildIssue : buildResult.getIssues()) {
+	            if (buildIssue.getSeverity().isSeverThan(severity)) {
+	                printStream.println(buildIssue);
+	            }
+	        }
+    	}
 
         return buildResult;
     }

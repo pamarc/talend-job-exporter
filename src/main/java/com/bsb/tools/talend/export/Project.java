@@ -1,5 +1,7 @@
 package com.bsb.tools.talend.export;
 
+import org.talend.repository.model.RepositoryNode;
+
 /**
  * Represents a logged-on Talend project.
  *
@@ -17,8 +19,8 @@ public class Project {
      * @return the result of the build
      * @throws JobExportException if some jobs failed to be exported
      */
-    public BuildResult export(JobExporterConfigBuilder configBuilder) throws JobExportException {
-        return export(configBuilder.build());
+    public BuildResult export(JobExporterConfigBuilder configBuilder,RepositoryNode node) throws JobExportException {
+        return export(configBuilder.build(),node);
     }
 
     /**
@@ -28,7 +30,7 @@ public class Project {
      * @return the result of the build
      * @throws JobExportException if some jobs failed to be exported
      */
-    public BuildResult export(JobExporterConfig config) throws JobExportException {
-        return new JobExporter(config).export();
+    public BuildResult export(JobExporterConfig config,RepositoryNode node) throws JobExportException {
+        return new JobExporter(config).export(node);
     }
 }

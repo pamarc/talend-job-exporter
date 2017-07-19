@@ -2,6 +2,7 @@ package com.bsb.tools.talend.export;
 
 import java.util.Map;
 
+import org.talend.repository.ui.wizards.exportjob.JavaJobScriptsExportWSWizardPage.JobExportType;
 import org.talend.repository.ui.wizards.exportjob.scriptsmanager.JobScriptsManager.ExportChoice;
 
 /**
@@ -16,13 +17,15 @@ public class JobExporterConfig {
     private final String jobsToExport;
 	private String versionToExport;
 	private String contextName;
+	private JobExportType jobTypeEnum;
 
-    public JobExporterConfig(String destinationFile, Map<ExportChoice, Object> choices, String jobsToExport, String version, String contextName) {
+    public JobExporterConfig(String destinationFile, Map<ExportChoice, Object> choices, String jobsToExport, String version, String contextName,JobExportType jobTypeEnum) {
         this.destinationFile = destinationFile;
         this.choices = choices;
         this.jobsToExport = jobsToExport;
 		this.versionToExport = version;
 		this.contextName = contextName;
+		this.jobTypeEnum=jobTypeEnum;
     }
 
     public String getDestinationFile() {
@@ -44,5 +47,9 @@ public class JobExporterConfig {
 	public String getContextName()
 	{
 		return contextName;
+	}
+	public JobExportType getJobTypeEnum()
+	{
+		return jobTypeEnum;
 	}
 }

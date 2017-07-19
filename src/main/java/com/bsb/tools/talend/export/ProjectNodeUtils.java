@@ -2,7 +2,6 @@ package com.bsb.tools.talend.export;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.PatternSyntaxException;
 
 import org.talend.core.GlobalServiceRegister;
 import org.talend.repository.ProjectManager;
@@ -11,6 +10,7 @@ import org.talend.repository.model.IRepositoryNode.ENodeType;
 import org.talend.repository.model.IRepositoryService;
 import org.talend.core.repository.model.ProjectRepositoryNode;
 import org.talend.repository.model.RepositoryNode;
+import org.talend.repository.utils.JobVersionUtils;
 
 /**
  * Bunch of utility methods handling {@link RepositoryNode nodes}.
@@ -44,9 +44,12 @@ public final class ProjectNodeUtils {
      * @throws IllegalStateException if there is no matching node
      */
     public static RepositoryNode getNodeByLabel(IRepositoryNode node, String label) {
+
         for (IRepositoryNode child : node.getChildren()) {
+        	//System.out.println("label : "+child.getLabel());
             if (label.equals(child.getLabel())) {
                 return (RepositoryNode) child;
+            }else{
             }
         }
 
@@ -60,7 +63,9 @@ public final class ProjectNodeUtils {
      * @see #findChildrenByPath(IRepositoryNode, String)
      */
     public static List<RepositoryNode> findJobsByPath(String path) {
-        return findChildrenByPath(getNodeByLabel(getRepositoryNode(), "Job Designs"), path);
+    	List<RepositoryNode> l = findChildrenByPath(getNodeByLabel(getRepositoryNode(), "Jobs"), path);
+    	System.out.println("nb de job à exporter : "+l.size());    	
+        return l;
     }
 
     /**
@@ -70,20 +75,30 @@ public final class ProjectNodeUtils {
      * @return matching children, or empty if there is no match
      */
     public static List<RepositoryNode> findChildrenByPath(IRepositoryNode repositoryNode, String path) {
-        final List<RepositoryNode> nodes = new ArrayList<>();
-
+        List<RepositoryNode> nodes = new ArrayList<>();
+        String fullElementPath;
+       
         if (repositoryNode.getChildren() != null) {
             for (IRepositoryNode iRepositoryNode : repositoryNode.getChildren()) {
+
+
                 if (iRepositoryNode.getType().equals(ENodeType.REPOSITORY_ELEMENT)) {
-                    if (isMatching(repositoryNode, path)) {
+                    // Display path for debug :
+                    fullElementPath=getNodePath(iRepositoryNode) +  iRepositoryNode.getLabel() ;
+
+                    if (fullElementPath.matches(path)) {
                         nodes.add((RepositoryNode) iRepositoryNode);
+                        System.out.println(" ++> Added node " + iRepositoryNode.getLabel() );
+                    	System.out.println("getNodePath(iRepositoryNode) : "+getNodePath(iRepositoryNode)+" | iRepositoryNode.getLabel() : "+iRepositoryNode.getLabel());
+                    }else{
+                        //System.out.println("   --> Node " + fullElementPath + " does not match pattern.");
                     }
                 } else {
                     nodes.addAll(findChildrenByPath(iRepositoryNode, path));
                 }
             }
         }
-
+        
         return nodes;
     }
 
@@ -91,6 +106,14 @@ public final class ProjectNodeUtils {
      * Checks whether the specified node match the specified path.
      */
     private static boolean isMatching(IRepositoryNode repositoryNode, String path) {
+
         return REPOSITORY_SERVICE.getRepositoryPath(repositoryNode).toString().matches(path);
     }
+
+    /**
+     * Returns element path :
+     */
+    public static String getNodePath(IRepositoryNode repositoryNode ) {
+        return REPOSITORY_SERVICE.getRepositoryPath(repositoryNode).toString() + "/";
+    }    
 }

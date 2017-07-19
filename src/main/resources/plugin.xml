@@ -7,7 +7,7 @@
    provider-name="bsb.com">
    <requires>
       <import plugin="org.eclipse.equinox.app" version="1.3.200"/>
-      <import plugin="org.talend.core.repository" version="6.1.1.20151214_1327"/>
+      <import plugin="org.talend.core.repository" version="6.4.1.20170623_1246"/>
    </requires>
     <extension id="com.bsb.tools.talend.export.JobExportApplication"
                point="org.eclipse.core.runtime.applications">

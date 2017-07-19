@@ -5,8 +5,13 @@ import static com.bsb.tools.talend.export.BuildResultPrintHandler.printIssuesOn;
 import static com.bsb.tools.talend.export.JobExporterConfigBuilder.toArchiveFile;
 import static com.bsb.tools.talend.export.Workspace.initializeWorkspace;
 
+import java.util.Iterator;
+import java.util.List;
+
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
+import org.talend.repository.model.RepositoryNode;
+import org.talend.repository.ui.wizards.exportjob.JavaJobScriptsExportWSWizardPage.JobExportType;
 
 /**
  * {@link IApplication} exporting Talend jobs to Java in a zip file
@@ -22,28 +27,52 @@ public class JobExportApplication implements IApplication {
 		if(version == null) version = "Latest";
 		String contextName = getParameterValue(iApplicationContext, "context");
 		if(contextName == null) contextName = "Default";
+		String jobType = getParameterValue(iApplicationContext, "jobType");
+		JobExportType jobTypeEnum = JobExportType.POJO;
+		if(jobType!=null && jobType.equals("OSGI")){ 
+			System.out.println("Type OSGI (ESB)");
+			jobTypeEnum = JobExportType.OSGI;
+		}
 		
 		
         try {
+        	boolean status = true;
+			Workspace ws = initializeWorkspace();
 			
-            return initializeWorkspace()
-                  .useProject(getMandatoryParameterValue(iApplicationContext, "projectName"))
-                  .export(
-                        toArchiveFile(getMandatoryParameterValue(iApplicationContext, "targetFile"))
-                              .jobsWithLabelMatching(getMandatoryParameterValue(iApplicationContext, "jobsToExport"))
-                              .needSystemRoutine()
-                              .needUserRoutine()
-                              .needTalendLibraries()
-                              .needJobScript()
-                              .needDependencies()
+			Project pj = ws.useProject(getMandatoryParameterValue(iApplicationContext, "projectName"));
+			String jobPattern = getMandatoryParameterValue(iApplicationContext, "jobsToExport");
+             
+            List<RepositoryNode> nodes = ProjectNodeUtils.findJobsByPath( jobPattern );
+            for (Iterator<RepositoryNode> iterator = nodes.iterator(); iterator.hasNext();) {
+            	try {
+					RepositoryNode repositoryNode = (RepositoryNode) iterator.next();
+					String jobFullPath = ProjectNodeUtils.getNodePath(repositoryNode)+repositoryNode.getLabel();
+					System.out.println("Compilation du job "+jobFullPath);
+					JobExporterConfigBuilder pb = toArchiveFile(getMandatoryParameterValue(iApplicationContext, "targetDir")+"/"+repositoryNode.getLabel());
+		            pb =        pb.jobsWithLabelMatching(jobFullPath)
+		                    .needSystemRoutine()
+		                    .needUserRoutine()
+		                    .needTalendLibraries()
+		                    .needJobScript()
+		                    .needDependencies()
+		                    //.needMavenScript()
+		                    // fait casser une compil ESB car espace dans les chemins windows
 							  .setVersion(version)
 							  .setContext(contextName)
-                  )
-                  .doOnResult(
-                        printIssuesOn(System.err)
-                              .filterOnSeverity(BuildIssueSeverity.ERROR)
-                  )
-                  .isSuccessful() ? EXIT_OK : EXIT_RELAUNCH;
+							  .setJobType(jobTypeEnum);
+		             status = pj.export(pb,repositoryNode)
+		                     .doOnResult(
+		                             printIssuesOn(System.err)
+		                                   .filterOnSeverity(BuildIssueSeverity.ERROR)
+		                       )
+		                       .isSuccessful();
+            	}
+            	catch (Exception e) {
+            	}
+            	
+				
+			}
+            return status ? EXIT_OK : EXIT_RELAUNCH;
         } catch (Exception e) {
             // unfortunately if this exception is propagated out of this application, the execution is frozen
             e.printStackTrace();

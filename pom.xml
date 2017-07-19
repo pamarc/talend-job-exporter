@@ -12,20 +12,20 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <tycho.version>0.22.0</tycho.version>
         <tycho-extras.version>${tycho.version}</tycho-extras.version>
-        <base.version>6.1.1</base.version>
+        <base.version>6.4.1</base.version>
         <!-- osgi.version is either ${base.version}-SNAPSHOT (snapshots), ${base.version}.<suffix> (milestones), or ${base.version} (GA)-->
-        <osgi.version>6.1.1</osgi.version>
+        <osgi.version>6.4.1</osgi.version>
         <!-- maven.version is either ${base.version}-SNAPSHOT (snapshots), ${base.version}-<suffix> (milestones), or ${base.version} (GA)-->
-        <maven.version>6.1.1</maven.version>
+        <maven.version>6.4.1</maven.version>
         <repo.type>Release</repo.type>
-        <talend.nexus.host>newbuild.talend.com:8081</talend.nexus.host>
+        <talend.nexus.host>artifacts-oss.talend.com</talend.nexus.host>
         <talend.nexus.url>http://${talend.nexus.host}/nexus/content/repositories</talend.nexus.url>
         <talend.nexus.p2unzip.url>http://${talend.nexus.host}/nexus/content/unzip</talend.nexus.p2unzip.url>
         <opensourcesnapshot-unziprepo.url>${talend.nexus.p2unzip.url}/TalendP2UnzipOpenSourceSnapshot/org/talend/repo</opensourcesnapshot-unziprepo.url>
         <opensourcerelease-unziprepo.url>${talend.nexus.p2unzip.url}/TalendP2UnzipOpenSourceRelease/org/talend/repo</opensourcerelease-unziprepo.url>
-        <eclipse-repo.url>${opensourcesnapshot-unziprepo.url}/talend-eclipse-p2-repo/6.1.0-SNAPSHOT/talend-eclipse-p2-repo-6.1.0-SNAPSHOT.zip-unzip</eclipse-repo.url>
+        <eclipse-repo.url>${opensourcesnapshot-unziprepo.url}/talend-eclipse-p2-repo/6.4.1-SNAPSHOT/talend-eclipse-p2-repo-6.4.1-SNAPSHOT.zip-unzip</eclipse-repo.url>
         <babel-repo.url>${opensourcesnapshot-unziprepo.url}/talend-babel-p2-repo/4.4.1-SNAPSHOT/talend-babel-p2-repo-4.4.1-SNAPSHOT.zip-unzip</babel-repo.url>
-        <doc-repo.url>${opensourcesnapshot-unziprepo.url}/talend-doc-p2-repo/6.1.1-SNAPSHOT/talend-doc-p2-repo-6.1.1-SNAPSHOT.zip-unzip/</doc-repo.url>
+        <doc-repo.url>${opensourcesnapshot-unziprepo.url}/talend-doc-p2-repo/6.4.1-SNAPSHOT/talend-doc-p2-repo-6.4.1-SNAPSHOT.zip-unzip/</doc-repo.url>
         <bonita-open-repo.url>${opensourcerelease-unziprepo.url}/bonita-community-p2-repo/6.5.0a/bonita-community-p2-repo-6.5.0a.zip-unzip/</bonita-open-repo.url>
         <equinox.build>org.eclipse.equinox.launcher_1.3.0.v20140415-2008.jar</equinox.build>
         <opensourcesnapshot-repo.url>${talend.nexus.url}/TalendOpenSourceSnapshot</opensourcesnapshot-repo.url>

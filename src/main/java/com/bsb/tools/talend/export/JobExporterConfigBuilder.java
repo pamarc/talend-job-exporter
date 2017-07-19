@@ -4,6 +4,8 @@ import java.util.EnumMap;
 import java.util.Map;
 
 import org.talend.repository.ui.wizards.exportjob.scriptsmanager.JobScriptsManager.ExportChoice;
+import org.talend.repository.ui.wizards.exportjob.JavaJobScriptsExportWSWizardPage.JobExportType;
+
 
 /**
  * Builder of {@link JobExporterConfig}.
@@ -21,6 +23,7 @@ public final class JobExporterConfigBuilder {
     private String jobsToExport = "[0-9a-zA-Z]*";
 	private String versionToExport = "Latest";
 	private String contextName;
+	private JobExportType jobTypeEnum;
 
     private JobExporterConfigBuilder(String destinationFile) {
         this.destinationFile = destinationFile;
@@ -37,6 +40,7 @@ public final class JobExporterConfigBuilder {
         exportChoiceMap.put(ExportChoice.applyToChildren, false);
         exportChoiceMap.put(ExportChoice.doNotCompileCode, false);
         exportChoiceMap.put(ExportChoice.needDependencies, true);
+        exportChoiceMap.put(ExportChoice.jobType,JobExportType.POJO);
 
     }
 
@@ -138,6 +142,17 @@ public final class JobExporterConfigBuilder {
 
         return this;
     }
+    
+    /**
+     * Declares that exported jobs routines defined by the user.
+     *
+     * @return this instance
+     */
+    public JobExporterConfigBuilder needMavenScript() {
+        this.exportChoiceMap.put(ExportChoice.needMavenScript, true);
+
+        return this;
+    }
 	
 	/**
 	*
@@ -160,12 +175,20 @@ public final class JobExporterConfigBuilder {
 		return this;
 	}
 	
+	public JobExporterConfigBuilder setJobType(JobExportType jobTypeEnum)
+	{
+		if(jobTypeEnum != null)
+		{
+			this.jobTypeEnum = jobTypeEnum;
+		}
+		return this;
+	}
 	
 
     /**
      * Builds a new jobs exporter based on the configuration specified so far.
      */
     public JobExporterConfig build() {
-        return new JobExporterConfig(destinationFile, exportChoiceMap, jobsToExport, versionToExport, contextName);
+        return new JobExporterConfig(destinationFile, exportChoiceMap, jobsToExport, versionToExport, contextName, jobTypeEnum);
     }
 }

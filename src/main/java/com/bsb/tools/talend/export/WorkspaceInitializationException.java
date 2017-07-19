@@ -7,7 +7,12 @@ package com.bsb.tools.talend.export;
  */
 public class WorkspaceInitializationException extends Exception {
 
-    public WorkspaceInitializationException(String message, Throwable cause) {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	public WorkspaceInitializationException(String message, Throwable cause) {
         super(message, cause);
     }
 }
