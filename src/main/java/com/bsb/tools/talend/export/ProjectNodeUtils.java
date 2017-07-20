@@ -86,7 +86,7 @@ public final class ProjectNodeUtils {
                     // Display path for debug :
                     fullElementPath=getNodePath(iRepositoryNode) +  iRepositoryNode.getLabel() ;
 
-                    if (fullElementPath.matches(path)) {
+                    if (iRepositoryNode.getLabel().matches(path)) {
                         nodes.add((RepositoryNode) iRepositoryNode);
                         System.out.println(" ++> Added node " + iRepositoryNode.getLabel() );
                     	System.out.println("getNodePath(iRepositoryNode) : "+getNodePath(iRepositoryNode)+" | iRepositoryNode.getLabel() : "+iRepositoryNode.getLabel());

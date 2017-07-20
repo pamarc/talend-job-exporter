@@ -12,6 +12,7 @@ import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.talend.repository.model.RepositoryNode;
 import org.talend.repository.ui.wizards.exportjob.JavaJobScriptsExportWSWizardPage.JobExportType;
+import org.talend.repository.utils.JobVersionUtils;
 
 /**
  * {@link IApplication} exporting Talend jobs to Java in a zip file
@@ -49,9 +50,10 @@ public class JobExportApplication implements IApplication {
             for (Iterator<RepositoryNode> iterator = nodes.iterator(); iterator.hasNext();) {
             	try {
 					RepositoryNode repositoryNode = (RepositoryNode) iterator.next();
+					version = JobVersionUtils.getCurrentVersion(repositoryNode);
 					String jobFullPath = ProjectNodeUtils.getNodePath(repositoryNode)+repositoryNode.getLabel();
 					System.out.println("Compilation du job "+jobFullPath);
-					JobExporterConfigBuilder pb = toArchiveFile(getMandatoryParameterValue(iApplicationContext, "targetDir")+"/"+repositoryNode.getLabel()+extension);
+					JobExporterConfigBuilder pb = toArchiveFile(getMandatoryParameterValue(iApplicationContext, "targetDir")+"/"+repositoryNode.getLabel()+"_"+version+extension);
 		            pb =        pb.jobsWithLabelMatching(jobFullPath)
 		                    .needSystemRoutine()
 		                    .needUserRoutine()
