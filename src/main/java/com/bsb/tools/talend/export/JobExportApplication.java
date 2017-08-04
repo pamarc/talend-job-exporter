@@ -5,6 +5,7 @@ import static com.bsb.tools.talend.export.BuildResultPrintHandler.printIssuesOn;
 import static com.bsb.tools.talend.export.JobExporterConfigBuilder.toArchiveFile;
 import static com.bsb.tools.talend.export.Workspace.initializeWorkspace;
 
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -44,40 +45,35 @@ public class JobExportApplication implements IApplication {
 			Workspace ws = initializeWorkspace();
 			
 			Project pj = ws.useProject(getMandatoryParameterValue(iApplicationContext, "projectName"));
-			String jobPattern = getMandatoryParameterValue(iApplicationContext, "jobsToExport");
+			String[] jobList = getMandatoryParameterValue(iApplicationContext, "jobsToExport").split(";");
              
-            List<RepositoryNode> nodes = ProjectNodeUtils.findJobsByPath( jobPattern );
-            for (Iterator<RepositoryNode> iterator = nodes.iterator(); iterator.hasNext();) {
-            	try {
-					RepositoryNode repositoryNode = (RepositoryNode) iterator.next();
-					version = JobVersionUtils.getCurrentVersion(repositoryNode);
-					String jobFullPath = ProjectNodeUtils.getNodePath(repositoryNode)+repositoryNode.getLabel();
-					System.out.println("Compilation du job "+jobFullPath);
-					JobExporterConfigBuilder pb = toArchiveFile(getMandatoryParameterValue(iApplicationContext, "targetDir")+"/"+repositoryNode.getLabel()+"_"+version+extension);
-		            pb =        pb.jobsWithLabelMatching(jobFullPath)
-		                    .needSystemRoutine()
-		                    .needUserRoutine()
-		                    .needTalendLibraries()
-		                    .needJobScript()
-		                    .needDependencies()
-		                    //.needMavenScript()
-		                    // fait casser une compil ESB car espace dans les chemins windows
-							  .setVersion(version)
-							  .setContext(contextName)
-							  .setJobType(jobTypeEnum);
-		             status = pj.export(pb,repositoryNode)
-		                     .doOnResult(
-		                             printIssuesOn(System.err)
-		                                   .filterOnSeverity(BuildIssueSeverity.ERROR)
-		                       )
-		                       .isSuccessful();
-            	}
-            	catch (Exception e) {
-            	}
-            	
-				
+            for (int i = 0; i < jobList.length; i++) {
+            	String jobPattern = jobList[i];
+                List<RepositoryNode> nodes = ProjectNodeUtils.findJobsByPath( jobPattern );
+				for (Iterator<RepositoryNode> iterator = nodes.iterator(); iterator.hasNext();) {
+					try {
+						RepositoryNode repositoryNode = (RepositoryNode) iterator.next();
+						version = JobVersionUtils.getCurrentVersion(repositoryNode);
+						String jobFullPath = ProjectNodeUtils.getNodePath(repositoryNode) + repositoryNode.getLabel();
+						System.out.println( (new Date()).toString()+ " - Compilation du job " + jobFullPath);
+						JobExporterConfigBuilder pb = toArchiveFile(
+								getMandatoryParameterValue(iApplicationContext, "targetDir") + "/"
+										+ repositoryNode.getLabel() + "_" + version + extension);
+						pb = pb.jobsWithLabelMatching(jobFullPath).needSystemRoutine().needUserRoutine()
+								.needTalendLibraries().needJobScript().needDependencies()
+								//.needMavenScript()
+								// fait casser une compil ESB car espace dans les chemins windows
+								.setVersion(version).setContext(contextName).setJobType(jobTypeEnum);
+						status = pj.export(pb, repositoryNode)
+								.doOnResult(printIssuesOn(System.err).filterOnSeverity(BuildIssueSeverity.ERROR))
+								.isSuccessful();
+						System.out.println((new Date()).toString()+" - FIN Compilation du job " + jobFullPath+" OK");
+					} catch (Exception e) {
+					}
+
+				} 
 			}
-            return status ? EXIT_OK : EXIT_RELAUNCH;
+			return status ? EXIT_OK : EXIT_RELAUNCH;
         } catch (Exception e) {
             // unfortunately if this exception is propagated out of this application, the execution is frozen
             e.printStackTrace();

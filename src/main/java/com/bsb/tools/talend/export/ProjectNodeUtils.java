@@ -30,11 +30,12 @@ public final class ProjectNodeUtils {
      */
     public static ProjectRepositoryNode getRepositoryNode() {
         final ProjectRepositoryNode instance = ProjectRepositoryNode.getInstance();
-
-        for(IRepositoryNode child : instance.getChildren()){
-            instance.initializeChildren(ProjectManager.getInstance().getCurrentProject(), child);
+        if (!instance.isInitialized()){
+	        for(IRepositoryNode child : instance.getChildren()){
+	            instance.initializeChildren(ProjectManager.getInstance().getCurrentProject(), child);
+	        }
+	        instance.setInitialized(true);
         }
-
         return instance;
     }
 
@@ -46,7 +47,6 @@ public final class ProjectNodeUtils {
     public static RepositoryNode getNodeByLabel(IRepositoryNode node, String label) {
 
         for (IRepositoryNode child : node.getChildren()) {
-        	//System.out.println("label : "+child.getLabel());
             if (label.equals(child.getLabel())) {
                 return (RepositoryNode) child;
             }else{
@@ -89,7 +89,6 @@ public final class ProjectNodeUtils {
                     if (iRepositoryNode.getLabel().matches(path)) {
                         nodes.add((RepositoryNode) iRepositoryNode);
                         System.out.println(" ++> Added node " + iRepositoryNode.getLabel() );
-                    	System.out.println("getNodePath(iRepositoryNode) : "+getNodePath(iRepositoryNode)+" | iRepositoryNode.getLabel() : "+iRepositoryNode.getLabel());
                     }else{
                         //System.out.println("   --> Node " + fullElementPath + " does not match pattern.");
                     }
